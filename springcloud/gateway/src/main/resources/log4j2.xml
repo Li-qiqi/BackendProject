@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration status="error" monitorInterval="5">
+    <!--<configuration>-->
+    <Properties>
+        <Property name="log.path">./logs/gateway</Property>
+        <Property name="past_log.path">./logs/gateway</Property>
+        <Property name="PROJECT">gateway</Property>
+        <Property name="SYSTEM">MSP</Property>
+        <property name="FILESIZE">50MB</property>
+    </Properties>
+
+    <appenders>
+
+
+        <Routing name="Routing">
+            <Routes pattern="$${ctx:ROUTINGKEY}">
+                <Route key="$${ctx:ROUTINGKEY}">
+                    <RollingFile name="Rolling-default" fileName="${log.path}/common.log"
+                                 filePattern="${log.path}/%d{yyyy-MM-dd}/common-%d{yyyy-MM-dd}-%i.log">
+                        <PatternLayout>
+                            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{flowNo} traceId\:%X{traceId} %t %-5p %c:%L %shield%n
+                            </pattern>
+                        </PatternLayout>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${FILESIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="100"/>
+                    </RollingFile>
+                </Route>
+                <Route>
+                    <RollingFile name="Rolling-${ctx:ROUTINGKEY}" fileName="${log.path}/${ctx:ROUTINGKEY}.log"
+                                 filePattern="${log.path}/%d{yyyy-MM-dd}/${ctx:ROUTINGKEY}-%d{yyyy-MM-dd}-%i.log">
+                        <PatternLayout>
+                            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{flowNo} traceId\:%X{traceId} %t %-5p %c:%L %shield%n
+                            </pattern>
+                        </PatternLayout>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${FILESIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="100"/>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+        <RollingFile name="Rolling-error" fileName="${log.path}/error.log"
+                     filePattern="${past_log.path}/%d{yyyy-MM-dd}/error-%d{yyyy-MM-dd-HH}-%i.log" immediateFlush="true">
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <pattern>
+                    <!--[%d{yyyy-MM-dd}T%d{HH:mm:ss.SSS}+0800|%-5level|$${sys:syscode}|%t|$${sys:mcode}|%c|%L|%X{flowNo}|$${sys:gloFlowNo}] %msg%n-->
+                    <!--[%d{yyyy-MM-dd}T%d{HH:mm:ss.SSS}\+08:00] |flowNo\:%X{flowNo}| |thread\:%t| %level %l %msg%n-->
+                    %d{yyyy-MM-dd}T%d{HH:mm:ss.SSS} funcMenuCd\:%X{funcMenuCd} busySn\:%X{busySn} sysSn\:%X{sysSn}
+                    %X{flowNo} traceId\:%X{traceId} %X{ROUTINGKEY} %-5level [%t] %logger{36} -- %msg%n
+                </pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${FILESIZE}"/>
+            </Policies>
+            <!--<DefaultRolloverStrategy max="100"/>-->
+        </RollingFile>
+
+    </appenders>
+    <Loggers>
+
+        <!--debug-->
+        <AsyncLogger name="com.dc.esb.startup.standalone.TokenApplyTask" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esb.startup.standalone.SM4ApplyTask" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+
+
+        <!--info-->
+        <AsyncLogger name="com.dc.esb.container.service.DefaultBusinessService" level="info" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esb.container.databinding.baseService.ConsumerMessageUnpackService" level="error"
+                     additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esb.container.databinding.baseService.ProviderMessageUnpackService" level="error"
+                     additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esc.client.factory.listener.ApolloConfigListerner" level="info" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+
+
+        <!--error-->
+        <AsyncLogger name="com.ctrip.framework.apollo.internals" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esb.monitor.metric" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.xml.binding" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+
+
+        <!--原ESB日志级别处理-->
+        <AsyncLogger name="com.dc.xml.binding.ExtRuleFactory" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dcfs.integrator.channel.platform.config.impl.ConfigContainerImpl" level="error"
+                     additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.xml.binding.ExtDigesterHelper" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dcfs.integrator.platform.mapping.FileLoad" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="org.apache.commons.digester.Digester" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.xml.binding.rule.ExtRule" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.xml.binding.rule.DumpRule" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.dc.esb.startup.standalone" level="error" additivity="false">
+            <appender-ref ref="Routing"/>
+        </AsyncLogger>
+
+
+        <root level="error">
+            <appender-ref ref="Routing"/>
+        </root>
+    </Loggers>
+</configuration>

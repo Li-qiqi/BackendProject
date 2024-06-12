@@ -1,0 +1,21 @@
+server:
+  port: 9815
+
+spring:
+  application:
+    name: gateway
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: payment_routh
+#          uri: http://localhost:8007
+#          predicates:
+#            - Path=/payment/
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      #defaultZone: http://localhost:7001/eureka
+      defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
